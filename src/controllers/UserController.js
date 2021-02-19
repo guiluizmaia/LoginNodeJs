@@ -1,5 +1,14 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const authConfig = require('../config/auth.json');
+
+function generateToken(params = {}){
+    return token = jwt.sign({ params }, authConfig.secret, {
+        expiresIn: 86400,
+    })
+}
 
 module.exports = {
     async index(req, res){
@@ -11,11 +20,11 @@ module.exports = {
             return res.status(400).json({ error: 'User not found' });
         }
 
-        if(bcrypt.compareSync(password, retorno.password)){
-            return res.json({"logado": retorno.user});
+        if(!await bcrypt.compareSync(password, retorno.password)){
+            return res.status(400).json({ error: 'User not found' });
         }
 
-        return res.status(400).json({ error: 'User not found' });
+        return res.send({"logado": retorno.user, token: generateToken({id: retorno.id})});        
     },       
 
     async store(req, res){
@@ -28,7 +37,7 @@ module.exports = {
 
             const userpront = await User.create({ user, password });
 
-            return res.json(userpront);
+            return res.send({userpront, token: generateToken({id: userpront.id}) });
         }
 
         return res.json({ error: 'Usuário ja cadastrado'})
