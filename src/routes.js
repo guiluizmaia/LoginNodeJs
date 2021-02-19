@@ -8,7 +8,7 @@ const routes = express.Router();
 
 routes.post('/login', UserController.index);
 routes.post('/createUser', UserController.store);
-routes.use(authMiddleware)
-routes.get('/project',ProjectController.index);
+//routes.use(authMiddleware)
+routes.get('/project',authMiddleware ,ProjectController.index);
 
 module.exports = routes;
